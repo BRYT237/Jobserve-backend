@@ -36,12 +36,12 @@ const signUpHandler = async (req, res)=> {
                 message: "Sign Up failed!!"   
             })
         }
-
+    
         return res.status(201).json({
             status: "Success",
-            message: "Signup Successful.",
+            message: "Signup Successful.",    
             user: result          
-        })
+        })   
     } catch (error) {
         console.log(error);
     }    
