@@ -55,6 +55,8 @@ const jobSchema = new mongoose.Schema({
     postedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "employer", 
+      required: true
+      
     },
     isActive: {
       type: Boolean,
@@ -68,4 +70,4 @@ const jobSchema = new mongoose.Schema({
 );
 
 const jobModel = mongoose.model("Job", jobSchema);
-module.exports = jobModel
+module.exports = jobModel        

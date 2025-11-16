@@ -67,7 +67,7 @@ const  Login = async (req, res)=> {
 
 const addJob = async (req, res) => {
     const imagE = req.file
-
+    const adminId = req.user._id
     if (!imagE) {
         return res.status(400).json({
             status: "Error",
@@ -75,7 +75,7 @@ const addJob = async (req, res) => {
         })
     }
     try {
-        const job = await jobModel.create({...req.body, companyLogo: imagE.path});
+        const job = (await jobModel.create({...req.body, companyLogo: imagE.path, postedBy: adminId})).populate('postedBy');
         if (!job) {
             return res.status(400).json({    
                 status: "Error",
@@ -87,7 +87,8 @@ const addJob = async (req, res) => {
         return res.status(201).json({
             status:"Success",
             message: "Job Created Successfully.",
-            job
+            work: job
+
         })
     } catch (error) {
         console.log(error)
@@ -140,8 +141,9 @@ const deleteJob = async (req, res) => {
 }
 
 const getJobs = async (req, res) => {
+    const { employerId } = req.params
     try {
-        const recieve = await jobModel.find();
+        const recieve = await jobModel.find({ postedBy: employerId }).populate('postedBy', 'name email');
         
         if (!recieve) {
             res.status(404).json({
@@ -160,6 +162,31 @@ const getJobs = async (req, res) => {
         console.log(error)
     }
 }
+
+const getJobs2 = async (req, res) => {
+   
+    try {
+        const recieve = await jobModel.find().populate('postedBy', 'name email');
+        
+        if (!recieve) {
+            res.status(404).json({
+                status: "Error",
+                message: "Unable to get Jobs!!"
+            })
+        }
+
+        return res.status(201).json({
+            status: "Success",
+            message: "Jobs Fetched.",
+            recieve
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
 
 const getSingleJob = async (req, res) => {
     const { jobId } = req.params
@@ -184,7 +211,30 @@ const getSingleJob = async (req, res) => {
     }
 }   
 
+const deleteJobs = async (req, res)=> {
+    const { employerId } = req.params
 
+    try {
+        const erase = await jobModel.deleteMany({ postedBy: employerId });
+
+        if (!erase) {
+
+            return res.status(400).json({
+                status: "Error",
+                message: "Unable to delete Job!!"
+            })
+        }
+
+        return res.status(201).json({
+            status: "Success",
+            message: "Jobs Deleted."
+        })
+
+
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 module.exports = {
     Signup,
@@ -193,5 +243,7 @@ module.exports = {
     deleteJob,
     getJobs,
     getSingleJob,
+    getJobs2,
+    deleteJobs,
     Login
 }
